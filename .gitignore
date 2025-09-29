@@ -1,9 +1,0 @@
-bin/
-obj/
-*.user
-*.db
-*.log
-.vscode/
-.env
-node_modules/
-dist/
