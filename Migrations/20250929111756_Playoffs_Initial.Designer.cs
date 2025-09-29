@@ -4,6 +4,7 @@ using MarcadorFaseIIApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MarcadorFaseIIApi.Migrations
 {
     [DbContext(typeof(MarcadorDbContext))]
-    partial class MarcadorDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250929111756_Playoffs_Initial")]
+    partial class Playoffs_Initial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -172,7 +175,7 @@ namespace MarcadorFaseIIApi.Migrations
                     b.Property<DateTime>("FechaHora")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("GameNumber")
+                    b.Property<int>("GameNumber")
                         .HasColumnType("int");
 
                     b.Property<int?>("MarcadorLocal")
@@ -181,17 +184,16 @@ namespace MarcadorFaseIIApi.Migrations
                     b.Property<int?>("MarcadorVisitante")
                         .HasColumnType("int");
 
-                    b.Property<int?>("SeriePlayoffId")
+                    b.Property<int>("SeriePlayoffId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("TorneoId")
+                    b.Property<int>("TorneoId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("SeriePlayoffId", "GameNumber")
-                        .IsUnique()
-                        .HasFilter("[SeriePlayoffId] IS NOT NULL AND [GameNumber] IS NOT NULL");
+                        .IsUnique();
 
                     b.ToTable("Partidos");
                 });
@@ -448,7 +450,8 @@ namespace MarcadorFaseIIApi.Migrations
                     b.HasOne("MarcadorFaseIIApi.Models.SeriePlayoff", "Serie")
                         .WithMany("Partidos")
                         .HasForeignKey("SeriePlayoffId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Serie");
                 });

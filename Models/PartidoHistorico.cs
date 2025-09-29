@@ -8,7 +8,6 @@ public class PartidoHistorico
         // Cuándo se guardó el partido
         public DateTime Fecha { get; set; }
 
-        // Identidad + nombres “congelados” (por si luego renombraste equipos)
         public int? EquipoLocalId { get; set; }
         public string? NombreLocal { get; set; }
         public int PuntosLocal { get; set; }

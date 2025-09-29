@@ -5,7 +5,7 @@ using MarcadorFaseIIApi.Models;
 using MarcadorFaseIIApi.Models.DTOs.Equipo;
 using MarcadorFaseIIApi.Models.DTOs.Common;
 
-namespace MarcadorFaseIIApi.Constrollers // <- usa el mismo namespace que ya tienes en el proyecto
+namespace MarcadorFaseIIApi.Constrollers 
 {
     [ApiController]
     [Route("api/[controller]")]
