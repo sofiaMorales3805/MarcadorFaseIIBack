@@ -65,7 +65,6 @@ namespace MarcadorFaseIIApi.Constrollers
             return Ok(new PagedResult<JugadorResponseDto>(dtos, total, page, pageSize));
         }
 
-        // ---------- Mutaciones (auth desactivada en DEBUG) ----------
 
         #if DEBUG
         [AllowAnonymous]

@@ -147,8 +147,8 @@ public class EquipoService
         if (equipo is null) return false;
 
         // (opcional) bloquear si está en uso en el marcador actual
-        // if (await _context.Marcadores.AnyAsync(m => m.EquipoLocalId == id || m.EquipoVisitanteId == id, ct))
-        //     throw new InvalidOperationException("No se puede eliminar: el equipo está en uso en el marcador actual.");
+        if (await _context.Marcadores.AnyAsync(m => m.EquipoLocalId == id || m.EquipoVisitanteId == id, ct))
+            throw new InvalidOperationException("No se puede eliminar: el equipo está en uso en el marcador actual.");
 
         _context.Equipos.Remove(equipo);
         await _context.SaveChangesAsync(ct);

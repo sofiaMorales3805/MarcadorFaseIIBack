@@ -15,6 +15,10 @@ public class MarcadorDbContext : DbContext
         public DbSet<PartidoHistorico> PartidosHistoricos { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Role> Roles { get; set; }
+        public DbSet<Torneo> Torneos { get; set; }
+        public DbSet<SeriePlayoff> Series { get; set; }
+        public DbSet<Partido> Partidos { get; set; }
+        public DbSet<PartidoJugador> PartidosJugadores { get; set; }
 
         
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -23,10 +27,10 @@ public class MarcadorDbContext : DbContext
         modelBuilder.Entity<Equipo>(e =>
         {
         e.Property(x => x.Id).UseIdentityColumn();
-        e.Property(x => x.Nombre)        // evitamos cambios de tipo/tamaño
+        e.Property(x => x.Nombre)        
         .IsRequired()
         .HasColumnType("nvarchar(max)");
-        e.Property(x => x.Ciudad)        // <- ahora requerida
+        e.Property(x => x.Ciudad)       
         .IsRequired()
         .HasMaxLength(80);
         e.Property(x => x.LogoFileName).HasMaxLength(128);
@@ -55,6 +59,48 @@ public class MarcadorDbContext : DbContext
                 .WithMany(r => r.Users)
                 .HasForeignKey("RoleId")
                 .OnDelete(DeleteBehavior.Restrict);
+
+            // Torneo
+            modelBuilder.Entity<Torneo>(t =>
+            {
+                t.Property(x => x.Id).UseIdentityColumn();
+                t.Property(x => x.Nombre).IsRequired().HasMaxLength(120);
+            });
+
+            // SeriePlayoff
+            modelBuilder.Entity<SeriePlayoff>(s =>
+            {
+            s.Property(x => x.Id).UseIdentityColumn();
+            s.HasOne(x => x.Torneo)
+            .WithMany(t => t.Series)
+            .HasForeignKey(x => x.TorneoId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+            s.HasIndex(x => new { x.TorneoId, x.Ronda });
+            });
+
+            // Partido
+            modelBuilder.Entity<Partido>(p =>
+            {
+            p.Property(x => x.Id).UseIdentityColumn();
+            p.HasOne(x => x.Serie)
+            .WithMany(s => s.Partidos)
+            .HasForeignKey(x => x.SeriePlayoffId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+            p.HasIndex(x => new { x.SeriePlayoffId, x.GameNumber }).IsUnique();
+            });
+
+            // PartidoJugador (Roster)
+            modelBuilder.Entity<PartidoJugador>(r =>
+            {
+            r.HasKey(x => new { x.PartidoId, x.EquipoId, x.JugadorId });
+            r.HasOne(x => x.Partido)
+            .WithMany(p => p.Roster)
+            .HasForeignKey(x => x.PartidoId)
+            .OnDelete(DeleteBehavior.Cascade);
+            });
+
 
             //Indice de username
             modelBuilder.Entity<User>()
