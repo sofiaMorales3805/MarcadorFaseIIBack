@@ -6,17 +6,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MarcadorFaseIIApi.Services;
 
-/// <summary>
-/// Servicio de dominio para gestión de equipos (listados, validaciones y CRUD).
-/// </summary>
 public class EquipoService
 {
     private readonly MarcadorDbContext _context;
     private readonly IFileStorageService _fileStorage;
 
-    /// <summary>
-    /// Crea una instancia del servicio de equipos.
-    /// </summary>
     public EquipoService(MarcadorDbContext context, IFileStorageService fileStorage)
     {
         _context = context;
@@ -25,9 +19,6 @@ public class EquipoService
 
     // --------- Listados ---------
 
-    /// <summary>
-    /// Lista equipos con filtros opcionales por nombre y ciudad.
-    /// </summary>
     public async Task<List<Equipo>> GetListAsync(string? search, string? ciudad, CancellationToken ct = default)
     {
         IQueryable<Equipo> q = _context.Equipos.AsNoTracking();
@@ -47,15 +38,9 @@ public class EquipoService
         return await q.OrderBy(e => e.Nombre).ToListAsync(ct);
     }
 
-    /// <summary>
-    /// Obtiene un equipo por su identificador.
-    /// </summary>
     public Task<Equipo?> GetByIdAsync(int id, CancellationToken ct = default)
         => _context.Equipos.AsNoTracking().FirstOrDefaultAsync(e => e.Id == id, ct);
 
-    /// <summary>
-    /// Devuelve un listado paginado y ordenado de equipos con filtros.
-    /// </summary>
     public async Task<(List<Equipo> Items, int Total)> GetPagedAsync(
         string? search, string? ciudad, string? sortBy, bool asc, int page, int pageSize, CancellationToken ct = default)
     {
@@ -78,7 +63,7 @@ public class EquipoService
             "ciudad" => asc ? q.OrderBy(e => e.Ciudad) : q.OrderByDescending(e => e.Ciudad),
             "puntos" => asc ? q.OrderBy(e => e.Puntos) : q.OrderByDescending(e => e.Puntos),
             "faltas" => asc ? q.OrderBy(e => e.Faltas) : q.OrderByDescending(e => e.Faltas),
-            _ => asc ? q.OrderBy(e => e.Nombre) : q.OrderByDescending(e => e.Nombre),
+            _        => asc ? q.OrderBy(e => e.Nombre) : q.OrderByDescending(e => e.Nombre),
         };
 
         var total = await q.CountAsync(ct);
@@ -88,18 +73,12 @@ public class EquipoService
 
     // --------- Validaciones ---------
 
-    /// <summary>
-    /// Verifica existencia por nombre (case-insensitive).
-    /// </summary>
     public Task<bool> ExistsByNombreAsync(string nombre, CancellationToken ct = default)
     {
         var n = nombre.Trim().ToLower();
         return _context.Equipos.AnyAsync(e => e.Nombre.ToLower() == n, ct);
     }
 
-    /// <summary>
-    /// Verifica duplicado por nombre excluyendo un id.
-    /// </summary>
     public Task<bool> ExistsByNombreExceptIdAsync(int id, string nombre, CancellationToken ct = default)
     {
         var n = nombre.Trim().ToLower();
@@ -108,9 +87,6 @@ public class EquipoService
 
     // --------- Crear / Actualizar / Eliminar ---------
 
-    /// <summary>
-    /// Crea un equipo nuevo y opcionalmente guarda su logo.
-    /// </summary>
     public async Task<Equipo> CreateAsync(string nombre, string ciudad, IFormFile? logo, CancellationToken ct = default)
     {
         // valida duplicado ANTES de guardar archivo
@@ -135,9 +111,6 @@ public class EquipoService
         return equipo;
     }
 
-    /// <summary>
-    /// Actualiza un equipo existente; reemplaza logo si se envía uno nuevo.
-    /// </summary>
     public async Task<Equipo?> UpdateAsync(
         int id, string nombre, string ciudad, IFormFile? logo, CancellationToken ct = default)
     {
@@ -168,9 +141,6 @@ public class EquipoService
         return equipo;
     }
 
-    /// <summary>
-    /// Elimina un equipo por id y borra el logo si existe.
-    /// </summary>
     public async Task<bool> DeleteAsync(int id, CancellationToken ct = default)
     {
         var equipo = await _context.Equipos.FirstOrDefaultAsync(e => e.Id == id, ct);
