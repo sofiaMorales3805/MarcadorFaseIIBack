@@ -7,19 +7,12 @@ using MarcadorFaseIIApi.Models.DTOs.Common;
 
 namespace MarcadorFaseIIApi.Constrollers // <- usa el mismo namespace que ya tienes en el proyecto
 {
-    /// <summary>
-    /// Gestión de equipos: listado, detalle, paginación y CRUD (con autorización en entorno no-DEBUG).
-    /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     public class EquiposController : ControllerBase
     {
         private readonly EquipoService _service;
 
-        /// <summary>
-        /// Crea el controlador de equipos con su servicio de dominio.
-        /// </summary>
-        /// <param name="service">Servicio de equipos.</param>
         public EquiposController(EquipoService service)
         {
             _service = service;
@@ -27,13 +20,6 @@ namespace MarcadorFaseIIApi.Constrollers // <- usa el mismo namespace que ya tie
 
         // ----------------- GETs -----------------
 
-        /// <summary>
-        /// Lista equipos con filtros opcionales.
-        /// </summary>
-        /// <param name="search">Texto a buscar (nombre/otros campos).</param>
-        /// <param name="ciudad">Filtro por ciudad.</param>
-        /// <param name="ct">Token de cancelación.</param>
-        /// <returns>200 con colección de <see cref="EquipoResponseDto"/>.</returns>
         // GET api/equipos?search=&ciudad=
         [HttpGet]
         public async Task<ActionResult<IEnumerable<EquipoResponseDto>>> Get(
@@ -45,12 +31,6 @@ namespace MarcadorFaseIIApi.Constrollers // <- usa el mismo namespace que ya tie
             return Ok(equipos.Select(ToResponseDto));
         }
 
-        /// <summary>
-        /// Obtiene un equipo por su id.
-        /// </summary>
-        /// <param name="id">Identificador del equipo.</param>
-        /// <param name="ct">Token de cancelación.</param>
-        /// <returns>200 con equipo; 404 si no existe.</returns>
         // GET api/equipos/{id}
         [HttpGet("{id:int}")]
         public async Task<ActionResult<EquipoResponseDto>> GetById(int id, CancellationToken ct)
@@ -60,17 +40,6 @@ namespace MarcadorFaseIIApi.Constrollers // <- usa el mismo namespace que ya tie
             return Ok(ToResponseDto(e));
         }
 
-        /// <summary>
-        /// Devuelve equipos paginados con filtros y ordenamiento.
-        /// </summary>
-        /// <param name="page">Página (>=1).</param>
-        /// <param name="pageSize">Tamaño de página.</param>
-        /// <param name="search">Texto de búsqueda.</param>
-        /// <param name="ciudad">Filtro por ciudad.</param>
-        /// <param name="sortBy">Campo de ordenamiento (por defecto <c>nombre</c>).</param>
-        /// <param name="sortDir">Dirección: <c>asc</c> o <c>desc</c>.</param>
-        /// <param name="ct">Token de cancelación.</param>
-        /// <returns>200 con <see cref="PagedResult{T}"/> de <see cref="EquipoResponseDto"/>.</returns>
         // GET api/equipos/paged?page=1&pageSize=10&search=&ciudad=&sortBy=nombre&sortDir=asc
         [HttpGet("paged")]
         public async Task<ActionResult<PagedResult<EquipoResponseDto>>> GetPaged(
@@ -93,18 +62,12 @@ namespace MarcadorFaseIIApi.Constrollers // <- usa el mismo namespace que ya tie
 
         // ----------------- Mutaciones -----------------
 
-        /// <summary>
-        /// Crea un nuevo equipo (permite subir logo por formulario).
-        /// </summary>
-        /// <param name="form">Formulario con nombre, ciudad y archivo de logo.</param>
-        /// <param name="ct">Token de cancelación.</param>
-        /// <returns>201 con el recurso creado; 409 si ya existe un equipo con ese nombre.</returns>
         // POST api/equipos
-#if DEBUG
+        #if DEBUG
         [AllowAnonymous]
-#else
+        #else
         [Authorize(Roles = "Admin")]
-#endif
+        #endif
         [HttpPost]
         [RequestSizeLimit(5_000_000)]
         public async Task<ActionResult<EquipoResponseDto>> Create([FromForm] EquipoCreateFormDto form, CancellationToken ct)
@@ -120,19 +83,12 @@ namespace MarcadorFaseIIApi.Constrollers // <- usa el mismo namespace que ya tie
             }
         }
 
-        /// <summary>
-        /// Actualiza un equipo existente (permite reemplazar el logo).
-        /// </summary>
-        /// <param name="id">Id del equipo.</param>
-        /// <param name="form">Formulario con campos a actualizar.</param>
-        /// <param name="ct">Token de cancelación.</param>
-        /// <returns>200 con el equipo; 404 si no existe; 409 si hay conflicto de nombre.</returns>
         // PUT api/equipos/{id}
-#if DEBUG
+        #if DEBUG
         [AllowAnonymous]
-#else
+        #else
         [Authorize(Roles = "Admin")]
-#endif
+        #endif
         [HttpPut("{id:int}")]
         [RequestSizeLimit(5_000_000)]
         public async Task<ActionResult<EquipoResponseDto>> Update(int id, [FromForm] EquipoUpdateFormDto form, CancellationToken ct)
@@ -149,18 +105,12 @@ namespace MarcadorFaseIIApi.Constrollers // <- usa el mismo namespace que ya tie
             }
         }
 
-        /// <summary>
-        /// Elimina un equipo por id.
-        /// </summary>
-        /// <param name="id">Id del equipo.</param>
-        /// <param name="ct">Token de cancelación.</param>
-        /// <returns>204 si se elimina; 404 si no existe; 409 si está en uso (si el servicio lo valida).</returns>
         // DELETE api/equipos/{id}
-#if DEBUG
+        #if DEBUG
         [AllowAnonymous]
-#else
+        #else
         [Authorize(Roles = "Admin")]
-#endif
+        #endif
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id, CancellationToken ct)
         {
@@ -179,9 +129,6 @@ namespace MarcadorFaseIIApi.Constrollers // <- usa el mismo namespace que ya tie
 
         // ----------------- Helpers -----------------
 
-        /// <summary>
-        /// Proyección de entidad <see cref="Equipo"/> a DTO de respuesta.
-        /// </summary>
         private EquipoResponseDto ToResponseDto(Equipo e) => new()
         {
             Id = e.Id,
@@ -192,9 +139,6 @@ namespace MarcadorFaseIIApi.Constrollers // <- usa el mismo namespace que ya tie
             LogoUrl = BuildLogoUrl(e.LogoFileName)
         };
 
-        /// <summary>
-        /// Construye URL absoluta del logo a partir del nombre de archivo.
-        /// </summary>
         private string? BuildLogoUrl(string? fileName)
             => string.IsNullOrWhiteSpace(fileName)
                 ? null

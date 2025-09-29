@@ -4,9 +4,6 @@ using MarcadorFaseIIApi.Services.Interfaces;
 
 namespace MarcadorFaseIIApi.Services
 {
-    /// <summary>
-    /// Almacenamiento local de archivos (logos) bajo wwwroot/uploads/logos.
-    /// </summary>
     public class LocalFileStorageService : IFileStorageService
     {
         private readonly string _logosDirPhysical;
@@ -16,9 +13,6 @@ namespace MarcadorFaseIIApi.Services
 
         private const long MaxLogoBytes = 2 * 1024 * 1024; // 2 MB
 
-        /// <summary>
-        /// Inicializa la carpeta de almacenamiento de logos.
-        /// </summary>
         public LocalFileStorageService(IWebHostEnvironment env)
         {
             // Carpeta física: <raíz-proyecto>/wwwroot/uploads/logos
@@ -27,9 +21,6 @@ namespace MarcadorFaseIIApi.Services
             Directory.CreateDirectory(_logosDirPhysical);
         }
 
-        /// <summary>
-        /// Guarda un archivo de logo validando tamaño y extensión.
-        /// </summary>
         public async Task<string> SaveLogoAsync(IFormFile file, CancellationToken ct = default)
         {
             if (file == null || file.Length == 0)
@@ -51,9 +42,6 @@ namespace MarcadorFaseIIApi.Services
             return newName; // devolvemos solo el nombre
         }
 
-        /// <summary>
-        /// Elimina un logo existente por nombre de archivo si existe.
-        /// </summary>
         public Task DeleteLogoAsync(string? fileName)
         {
             if (!string.IsNullOrWhiteSpace(fileName))
