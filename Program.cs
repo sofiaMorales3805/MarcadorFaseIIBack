@@ -27,15 +27,17 @@ builder.Services.AddDbContext<MarcadorDbContext>(options =>
 
 // Repos / Servicios propios
 builder.Services.AddScoped<MarcadorService>();
-builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<EquipoService>();
-builder.Services.AddScoped<JugadorService>();
-builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
-builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
-builder.Services.AddScoped<IFileStorageService, LocalFileStorageService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
+
+// Storage de archivos (logos) y servicio de equipos
+builder.Services.AddScoped<IFileStorageService, LocalFileStorageService>();
+builder.Services.AddScoped<EquipoService>();
+
+//Servicio de jugadores
+builder.Services.AddScoped<JugadorService>();
 // CORS
 var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
 builder.Services.AddCors(options =>
@@ -63,10 +65,9 @@ builder.Services.AddAuthentication(options =>
     options.SaveToken = true;
     options.TokenValidationParameters = new TokenValidationParameters
     {
-        ValidateIssuer = true,
+        ValidateIssuer = false,
         ValidateAudience = true,
         ValidateLifetime = true,
-        ClockSkew = TimeSpan.Zero,
         ValidateIssuerSigningKey = true,
         ValidIssuer = jwtSettings["Issuer"],
         ValidAudience = jwtSettings["Audience"],
@@ -98,7 +99,6 @@ using (var scope = app.Services.CreateScope())
 // -------------------------
 // Pipeline HTTP
 // -------------------------
-app.UseRouting();  
 app.UseCors("CorsPolicy");
 
 app.UseSwagger();
